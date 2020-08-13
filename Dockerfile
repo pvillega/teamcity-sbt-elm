@@ -11,12 +11,13 @@ ENV SBT_VERSION 1.3.12
 
 RUN apt-get install curl software-properties-common
 
-# Set Jdk 11
+# Set Jdk 11, we need to remove the old java from the path
 RUN \
-    curl -fsL https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key add - && \
-    add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ && \
     apt-get update && \
-    apt-get install adoptopenjdk-11-hotspot -y
+    apt-get install openjdk-11-jdk -y && \
+    echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"' >> "${HOME}/.bashrc" && \
+    echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/' >> "${HOME}/.bashrc" && \
+    update-alternatives --auto java
 
 # Install sbt
 RUN \
