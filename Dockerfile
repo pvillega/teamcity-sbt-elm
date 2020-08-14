@@ -13,13 +13,23 @@ ENV GROUP_ID 1001
 
 RUN apt-get install curl software-properties-common
 
+# Remove jdk 8
+RUN  rm -rf /opt/java
+
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV JRE_HOME=/usr/lib/jvm/java-11-openjdk-amd64/jre
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
+
 # Set Jdk 11, we need to remove the old java from the path
 RUN \
     apt-get update && \
     apt-get install openjdk-11-jdk -y && \
-    echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"' >> "${HOME}/.bashrc" && \
-    echo 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/' >> "${HOME}/.bashrc" && \
-    update-alternatives --auto java
+    echo "export PATH=$PATH" >> "${HOME}/.bashrc" && \
+    echo "export JAVA_HOME=$JAVA_HOME" >> "${HOME}/.bashrc" && \
+    update-alternatives --install /usr/bin/java java ${JAVA_HOME}/bin/java 1 && \
+    update-alternatives --set java ${JAVA_HOME}/bin/java && \
+    update-alternatives --install /usr/bin/javac javac ${JAVA_HOME}/bin/javac 1 && \
+    update-alternatives --set javac ${JAVA_HOME}/bin/javac
 
 # Install sbt
 RUN \
@@ -43,15 +53,16 @@ RUN \
     curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install nodejs
 
-# Add and use user sbtuser
-RUN groupadd --gid $GROUP_ID sbtuser && useradd --gid $GROUP_ID --uid $USER_ID sbtuser --shell /bin/bash
-RUN chown -R sbtuser:sbtuser /opt
-RUN mkdir /home/sbtuser && chown -R sbtuser:sbtuser /home/sbtuser
-RUN mkdir /logs && chown -R sbtuser:sbtuser /logs
-USER sbtuser
+# User buildagent user
+RUN chown -R buildagent:buildagent /opt
+USER buildagent
 
 # Switch working directory
-WORKDIR /home/sbtuser
+WORKDIR /home/buildagent
+
+RUN \
+    echo "export PATH=$PATH" >> "${HOME}/.bashrc" && \
+    echo "export JAVA_HOME=$JAVA_HOME" >> "${HOME}/.bashrc"
 
 # Prepare sbt (warm cache)
 RUN \
