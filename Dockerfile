@@ -53,6 +53,13 @@ RUN \
     curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt-get install nodejs
 
+# Install Ansible
+RUN \
+    echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /etc/apt/sources.list && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367 && \
+    apt-get update && \
+    apt-get install ansible -y
+
 # User buildagent user
 RUN chown -R buildagent:buildagent /opt
 USER buildagent

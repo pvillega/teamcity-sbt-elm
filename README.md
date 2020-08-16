@@ -9,6 +9,7 @@ Current versions:
 - Sbt 1.3.12
 - Npm 12
 - Elm 0.18
+- Ansible (latest release for Debian)
 
 Available from [Docker Hub Registry](https://registry.hub.docker.com) at [https://hub.docker.com/r/pvillega/teamcity-sbt-elm](https://hub.docker.com/r/pvillega/teamcity-sbt-elm)
 
