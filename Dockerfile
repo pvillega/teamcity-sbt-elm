@@ -8,10 +8,15 @@ USER root
 # Env variables
 ENV SCALA_VERSION 2.13.3
 ENV SBT_VERSION 1.3.12
-ENV USER_ID 1001
-ENV GROUP_ID 1001
 
-RUN apt-get install curl software-properties-common
+# Update docker version
+RUN \
+    apt-get install curl software-properties-common apt-transport-https ca-certificates gnupg-agent -y && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    apt-key fingerprint 0EBFCD88 && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian buster stable" && \
+    apt-get update && \
+    apt-get install docker-ce docker-ce-cli containerd.io -y
 
 # Remove jdk 8
 RUN  rm -rf /opt/java
@@ -62,6 +67,10 @@ RUN \
 
 # User buildagent user
 RUN chown -R buildagent:buildagent /opt
+RUN mkdir -p /data/teamcity_agent/conf
+RUN chown -R buildagent:buildagent /data
+RUN groupmod -g 233 docker
+RUN usermod -aG docker buildagent
 USER buildagent
 
 # Switch working directory
